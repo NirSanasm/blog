@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
 type Props = {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateStaticParams() {
@@ -15,7 +15,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { meta } = getPostBySlug(params.slug)
+    const { slug } = await params
+    const { meta } = getPostBySlug(slug)
     return {
       title: meta.title,
       description: meta.summary,
@@ -26,9 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PostPage({ params }: Props) {
+  const { slug } = await params
   let post
   try {
-    post = getPostBySlug(params.slug)
+    post = getPostBySlug(slug)
   } catch {
     notFound()
   }
